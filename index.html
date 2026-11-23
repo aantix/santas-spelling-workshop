@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Santa's Spelling Workshop</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;font-family:Chalkboard,"Chalkboard SE","Comic Sans MS",cursive;color:#fff;
+background:linear-gradient(180deg,#0b2545 0%,#13315c 60%,#1d4e89 100%);overflow-x:hidden;text-align:center}
+#snow{position:fixed;inset:0;pointer-events:none;z-index:0}
+.flake{position:absolute;top:-20px;color:#fff;opacity:.85;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(110vh)}}
+.wrap{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:14px}
+h1{font-size:34px;margin:8px 0 2px;text-shadow:3px 3px 0 #b3001b}
+.sub{font-size:17px;margin:0 0 10px;color:#ffe08a}
+.card{background:rgba(255,255,255,.12);border:3px solid #ffd23f;border-radius:20px;padding:14px;margin:10px 0}
+.secret{background:#fff8e1;color:#5a2a00;border:3px dashed #c1121f;text-align:left;font-size:16px;line-height:1.45}
+.secret b{color:#c1121f}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:16px;font-size:20px;padding:12px 16px;margin:6px;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.35)}
+button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.mode{display:block;width:100%;margin:10px 0;background:#c1121f;font-size:21px;text-align:left}
+.mode.g{background:#1b8a3a}.mode.y{background:#e09f00}.mode.p{background:#7b2cbf}
+.mode small{display:block;font-size:15px;opacity:.9}
+.hear{background:#1b8a3a;font-size:22px}
+.back{background:#555;font-size:16px}
+.slots{display:flex;justify-content:center;flex-wrap:wrap;gap:5px;margin:12px 0;min-height:56px}
+.slot{width:40px;height:52px;border-radius:10px;background:#fff;color:#0b2545;font-size:30px;line-height:52px;font-weight:bold;border:3px solid #ffd23f}
+.tiles{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.tile{width:54px;height:58px;font-size:28px;background:#c1121f;padding:0;margin:3px;border:3px solid #ffd23f}
+.tile.used{opacity:.25;pointer-events:none}
+.choice{display:block;width:100%;font-size:28px;background:#fff;color:#0b2545;border:4px solid #1b8a3a;margin:9px 0}
+.choice.wrong{background:#ffb3b3;border-color:#c1121f}.choice.right{background:#b7f5c4}
+.word-show{font-size:38px;letter-spacing:3px;margin:8px 0;color:#ffe08a}
+.msg{font-size:21px;min-height:32px;margin:8px 0}
+.hint{font-size:17px;color:#ffe08a;min-height:24px}
+.stats{display:flex;justify-content:space-between;font-size:18px}
+.tree{font-size:30px;min-height:40px;letter-spacing:2px}
+.hidden{display:none}
+.big{font-size:60px}
+</style>
+</head>
+<body>
+<div id="snow"></div>
+<div class="wrap">
+  <h1>🎅 Santa's Spelling Workshop 🎄</h1>
+  <p class="sub">Help the elves wrap every present!</p>
+
+  <div id="menu">
+    <div class="card secret">
+      <b>🧝 Elf's Secret Code:</b><br>
+      Some letter teams have a <b>sneaky letter</b> you can't hear!<br>
+      👉 <b>kn</b> says /n/ (<i>kn</i>ot) &nbsp; 👉 <b>wr</b> says /r/ (<i>wr</i>ong)<br>
+      👉 <b>wh</b> says /w/ (<i>wh</i>ip) &nbsp; 👉 <b>qu</b> says /kw/ (<i>qu</i>it)<br>
+      <b>🎁 Ending trick:</b> Short vowel + 1 consonant? <b>Double it!</b> knot → kno<b>tt</b>ed, quit → qui<b>tt</b>ing<br>
+      Ends in silent e? <b>Drop the e</b>: whine → whin<b>ed</b><br>
+      <b>⭐ Tricky word:</b> all
+    </div>
+    <button class="mode" onclick="start('wrap')">🎁 Wrap the Present<small>Hear the word, spell it with letter tiles</small></button>
+    <button class="mode g" onclick="start('team')">🦌 Sneaky Letter Sleigh<small>Pick the right letter team: kn, wr, wh or qu</small></button>
+    <button class="mode y" onclick="start('ending')">🍪 Cookie Builder<small>Add -ed or -ing the right way</small></button>
+    <button class="mode p" onclick="start('nice')">📜 Naughty or Nice List<small>Find the word that's spelled right</small></button>
+    <p id="bests" style="font-size:16px;color:#ffe08a"></p>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="stats"><span id="prog"></span><span>⭐ <span id="score">0</span></span></div>
+    <div class="tree" id="tree"></div>
+    <div class="card">
+      <div id="prompt" style="font-size:19px"></div>
+      <button class="hear" onclick="sayWord()">🔊 Hear it</button>
+      <div id="area"></div>
+      <div class="msg" id="msg"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+    <button class="back" onclick="menu()">🏠 Back to the Workshop</button>
+  </div>
+
+  <div id="done" class="hidden card">
+    <div class="big">🎄🎁🎅</div>
+    <h2 id="doneTitle"></h2>
+    <p id="doneText" style="font-size:20px"></p>
+    <button class="hear" onclick="start(mode)">🔁 Play again</button>
+    <button class="back" onclick="menu()">🏠 Workshop</button>
+  </div>
+</div>
+
+<script>
+const WORDS=[
+ {w:"knotted",team:"kn",base:"knot",end:"ed",rule:"double",s:"The elf knotted the ribbon on the present.",bad:["notted","knoted"],tip:"Silent k at the start, and double the t!"},
+ {w:"knitting",team:"kn",no:["qu"],base:"knit",end:"ing",rule:"double",s:"Grandma is knitting a cozy Christmas stocking.",bad:["nitting","kniting"],tip:"Silent k, then double the t before -ing."},
+ {w:"knocked",team:"kn",base:"knock",end:"ed",rule:"add",s:"Santa knocked snow off his big black boots.",bad:["knockt","knokked"],tip:"Silent k, and ck at the end. Just add -ed."},
+ {w:"wringing",team:"wr",base:"wring",end:"ing",rule:"add",s:"The elf was wringing out her wet mittens.",bad:["wrigning","rwinging"],tip:"Silent w before the r!"},
+ {w:"wronged",team:"wr",base:"wrong",end:"ed",rule:"add",s:"The reindeer felt wronged when he got no carrot.",bad:["ronged","wrongd"],tip:"Silent w at the start, then just add -ed."},
+ {w:"whipped",team:"wh",no:["qu"],base:"whip",end:"ed",rule:"double",s:"Mom whipped the cream for the hot cocoa.",bad:["whiped","wipped"],tip:"wh at the start, and double the p!"},
+ {w:"whined",team:"wh",base:"whine",end:"ed",rule:"drop",s:"The puppy whined at the door to see the snow.",bad:["whinned","whineed"],tip:"whine ends in silent e, so drop it and add -ed."},
+ {w:"quitting",team:"qu",no:["kn"],base:"quit",end:"ing",rule:"double",s:"The elves are not quitting until every toy is done.",bad:["quiting","kwitting"],tip:"q always brings its buddy u. Double the t!"},
+ {w:"quacked",team:"qu",no:["wh","wr"],base:"quack",end:"ed",rule:"add",s:"The toy duck quacked under the Christmas tree.",bad:["quackt","kwacked"],tip:"qu team, ck at the end, then just add -ed."},
+ {w:"all",team:null,base:null,end:null,rule:null,s:"We ate all the Christmas cookies.",bad:["al","aul"],tip:"Tricky word! a + double l."}
+];
+const PRESENTS=["🎁","🧸","🚂","🪀","🎨","🛷","🧦","🍭","⛸️","🪅"];
+let mode="",list=[],i=0,score=0,tries=0,picked=[],locked=false;
+
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.1;speechSynthesis.speak(u);}catch(e){}}
+function cur(){return list[i]}
+function sayWord(){const c=cur();if(c)speak(c.w+". "+c.s+" "+c.w+".");}
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a;}
+function $(id){return document.getElementById(id)}
+function show(id){["menu","game","done"].forEach(x=>$(x).classList.toggle("hidden",x!==id));}
+
+function menu(){show("menu");const n={wrap:"🎁",team:"🦌",ending:"🍪",nice:"📜"};let t=[];for(const m in n){const b=localStorage.getItem("ssw-best-"+m);if(b)t.push(n[m]+" best: "+b);}$("bests").textContent=t.join("   ");}
+
+function start(m){
+  mode=m;score=0;i=0;
+  let pool=WORDS;
+  if(m==="team")pool=WORDS.filter(x=>x.team);
+  if(m==="ending")pool=WORDS.filter(x=>x.base);
+  list=shuffle(pool);show("game");next(true);
+}
+
+function next(first){
+  if(!first)i++;
+  if(i>=list.length)return finish();
+  tries=0;picked=[];locked=false;$("msg").textContent="";$("hint").textContent="";
+  $("prog").textContent="🎁 "+(i+1)+" / "+list.length;$("score").textContent=score;
+  $("tree").textContent="🎄"+PRESENTS.slice(0,score).join("");
+  ({wrap:drawWrap,team:drawTeam,ending:drawEnding,nice:drawNice})[mode]();
+  setTimeout(sayWord,300);
+}
+
+function correct(){
+  locked=true;
+  if(tries===0){score++;$("msg").textContent="🎉 Ho ho ho! Present wrapped!";}
+  else $("msg").textContent="✅ You got it! Keep going!";
+  $("score").textContent=score;$("tree").textContent="🎄"+PRESENTS.slice(0,score).join("");
+  speak(tries===0?"Great job!":"You got it!");
+  setTimeout(()=>next(false),1300);
+}
+function miss(patternHint){
+  tries++;
+  const c=cur();
+  if(tries===1)$("hint").textContent="💡 "+patternHint;
+  else $("hint").textContent="👀 Peek: "+c.w.toUpperCase()+"  ("+c.tip+")";
+  $("msg").textContent="❄️ Oops! Try again!";
+}
+
+/* MODE 1: hear and spell with tiles + one decoy */
+function drawWrap(){
+  const c=cur();
+  $("prompt").textContent="Listen, then spell the word to wrap the present!";
+  const letters=c.w.split("");
+  const decoys="bcdfghjlmprstvwz".split("").filter(l=>!letters.includes(l));
+  const tiles=shuffle(letters.concat([decoys[Math.floor(Math.random()*decoys.length)]]));
+  let h='<div class="slots" id="slots">'+letters.map(()=> '<div class="slot"></div>').join("")+'</div><div class="tiles">';
+  tiles.forEach((l,k)=>{h+='<button class="tile" id="t'+k+'" onclick="tapTile('+k+',\''+l+'\')">'+l+'</button>';});
+  h+='</div><button class="back" onclick="undo()">⬅️ Undo</button>';
+  $("area").innerHTML=h;
+}
+function tapTile(k,l){
+  if(locked)return;const c=cur();
+  if(picked.length>=c.w.length)return;
+  picked.push({k:k,l:l});$("t"+k).classList.add("used");
+  const s=$("slots").children;s[picked.length-1].textContent=l;
+  if(picked.length===c.w.length){
+    const guess=picked.map(p=>p.l).join("");
+    if(guess===c.w)correct();
+    else{miss(c.team?"Remember the sneaky letter team "+c.team.toUpperCase()+"! "+c.tip:c.tip);
+      setTimeout(clearWrap,700);}
+  }
+}
+function undo(){if(locked||!picked.length)return;const p=picked.pop();$("t"+p.k).classList.remove("used");$("slots").children[picked.length].textContent="";}
+function clearWrap(){picked.forEach(p=>$("t"+p.k).classList.remove("used"));picked=[];[...$("slots").children].forEach(s=>s.textContent="");}
+
+/* MODE 2: pick the letter team */
+function drawTeam(){
+  const c=cur();
+  $("prompt").textContent="Which letter team starts this word?";
+  const rest=c.w.slice(2);
+  let h='<div class="word-show">__'+rest+'</div>';
+  shuffle(["kn","wr","wh","qu"].filter(t=>!(c.no||[]).includes(t))).forEach(t=>{h+='<button class="choice" onclick="pickTeam(this,\''+t+'\')">'+t+rest+'</button>';});
+  $("area").innerHTML=h;
+}
+function pickTeam(btn,t){
+  if(locked)return;const c=cur();
+  if(t===c.team){btn.classList.add("right");correct();}
+  else{btn.classList.add("wrong");miss("Say it slowly. Which team has a sneaky silent letter that makes that sound? "+c.tip);}
+}
+
+/* MODE 3: build the ending */
+function build(base,end,rule){
+  if(rule==="double")return base+base.slice(-1)+end;
+  if(rule==="drop")return base.slice(0,-1)+end;
+  return base+end;
+}
+function drawEnding(){
+  const c=cur();
+  $("prompt").innerHTML='Build the cookie! <b style="color:#ffe08a">'+c.base+'</b> + <b style="color:#ffe08a">'+c.end+'</b> = ?';
+  const opts={};
+  ["double","drop","add"].forEach(r=>{const w=build(c.base,c.end,r);if(!opts[w])opts[w]=r;});
+  if(c.base.slice(-1)!=="e"){const w=c.base+"e"+c.end;opts[w]="x";}
+  const words=shuffle(Object.keys(opts)).slice(0,3);
+  if(!words.includes(c.w)){words[0]=c.w;}
+  let h='<div class="word-show">🍪 '+c.base+' + '+c.end+'</div>';
+  shuffle(words).forEach(w=>{h+='<button class="choice" onclick="pickEnd(this,\''+w+'\')">'+w+'</button>';});
+  $("area").innerHTML=h;
+}
+function pickEnd(btn,w){
+  if(locked)return;const c=cur();
+  if(w===c.w){btn.classList.add("right");correct();}
+  else{btn.classList.add("wrong");
+    const hint=c.rule==="double"?"Short vowel + one consonant at the end? Double it!":c.rule==="drop"?"Ends in silent e? Drop the e, then add the ending.":"Two consonants at the end already? Just add the ending!";
+    miss(hint);}
+}
+
+/* MODE 4: naughty or nice (spot the right spelling) */
+function drawNice(){
+  const c=cur();
+  $("prompt").textContent="Only ONE is on the Nice List. Which is spelled right?";
+  let h="";
+  shuffle([c.w].concat(c.bad)).forEach(w=>{h+='<button class="choice" onclick="pickNice(this,\''+w+'\')">'+w+'</button>';});
+  $("area").innerHTML=h;
+}
+function pickNice(btn,w){
+  if(locked)return;const c=cur();
+  if(w===c.w){btn.classList.add("right");correct();}
+  else{btn.classList.add("wrong");miss("That one's on the Naughty List! "+c.tip);}
+}
+
+function finish(){
+  show("done");
+  const key="ssw-best-"+mode,best=Math.max(score,+(localStorage.getItem(key)||0));
+  localStorage.setItem(key,best);
+  const perfect=score===list.length;
+  $("doneTitle").textContent=perfect?"🌟 PERFECT! Santa says you're on the Nice List! 🌟":"🎄 Workshop shift complete! 🎄";
+  $("doneText").textContent="You wrapped "+score+" of "+list.length+" presents on the first try! Best: "+best;
+  speak(perfect?"Perfect! Ho ho ho! You're on the nice list!":"Great work, elf!");
+}
+
+(function snow(){const s=$("snow");if(!s||!s.appendChild)return;for(let k=0;k<30;k++){const f=document.createElement("div");f.className="flake";f.textContent="❄";f.style.left=(Math.random()*100)+"vw";f.style.fontSize=(10+Math.random()*16)+"px";f.style.animationDuration=(6+Math.random()*8)+"s";f.style.animationDelay=(-Math.random()*10)+"s";s.appendChild(f);}})();
+menu();
+</script>
+</body>
+</html>
