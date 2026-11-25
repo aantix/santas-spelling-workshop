@@ -48,17 +48,16 @@ button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
 
   <div id="menu">
     <div class="card secret">
-      <b>🧝 Elf's Secret Code:</b><br>
-      Some letter teams have a <b>sneaky letter</b> you can't hear!<br>
-      👉 <b>kn</b> says /n/ (<i>kn</i>ot) &nbsp; 👉 <b>wr</b> says /r/ (<i>wr</i>ong)<br>
-      👉 <b>wh</b> says /w/ (<i>wh</i>ip) &nbsp; 👉 <b>qu</b> says /kw/ (<i>qu</i>it)<br>
-      <b>🎁 Ending trick:</b> Short vowel + 1 consonant? <b>Double it!</b> knot → kno<b>tt</b>ed, quit → qui<b>tt</b>ing<br>
-      Ends in silent e? <b>Drop the e</b>: whine → whin<b>ed</b><br>
-      <b>⭐ Tricky word:</b> all
+      <b>🧝 Elf's Secret Code: Vowel Teams!</b><br>
+      Two letters team up to make ONE sound.<br>
+      🌙 <b>oo</b> says /oo/: m<b>oo</b>n, sp<b>oo</b>l, cart<b>oo</b>n<br>
+      🥱 <b>aw</b> &amp; <b>au</b> say /aw/: <b>aw</b> at the end or before n, l, k (y<b>aw</b>n, h<b>aw</b>k, cr<b>aw</b>l). <b>au</b> in the middle (c<b>au</b>ses, v<b>au</b>lt, h<b>au</b>nted)<br>
+      🪙 <b>oi</b> &amp; <b>oy</b> say /oy/: <b>oi</b> in the middle (<b>oi</b>l, c<b>oi</b>n, sp<b>oi</b>led). <b>oy</b> at the END (destr<b>oy</b>, enj<b>oy</b>, cowb<b>oy</b>)<br>
+      <b>✏️ Dictation:</b> My sister enjoys horses.
     </div>
     <button class="mode" onclick="start('wrap')">🎁 Wrap the Present<small>Hear the word, spell it with letter tiles</small></button>
-    <button class="mode g" onclick="start('team')">🦌 Sneaky Letter Sleigh<small>Pick the right letter team: kn, wr, wh or qu</small></button>
-    <button class="mode y" onclick="start('ending')">🍪 Cookie Builder<small>Add -ed or -ing the right way</small></button>
+    <button class="mode g" onclick="start('team')">🦌 Vowel Team Sleigh<small>Pick the team that fills the gap: oo, aw, au, oi or oy</small></button>
+    <button class="mode y" onclick="start('sort')">🧦 Stocking Sort<small>Which sound stocking does the word go in?</small></button>
     <button class="mode p" onclick="start('nice')">📜 Naughty or Nice List<small>Find the word that's spelled right</small></button>
     <p id="bests" style="font-size:16px;color:#ffe08a"></p>
   </div>
@@ -87,18 +86,26 @@ button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
 
 <script>
 const WORDS=[
- {w:"knotted",team:"kn",base:"knot",end:"ed",rule:"double",s:"The elf knotted the ribbon on the present.",bad:["notted","knoted"],tip:"Silent k at the start, and double the t!"},
- {w:"knitting",team:"kn",no:["qu"],base:"knit",end:"ing",rule:"double",s:"Grandma is knitting a cozy Christmas stocking.",bad:["nitting","kniting"],tip:"Silent k, then double the t before -ing."},
- {w:"knocked",team:"kn",base:"knock",end:"ed",rule:"add",s:"Santa knocked snow off his big black boots.",bad:["knockt","knokked"],tip:"Silent k, and ck at the end. Just add -ed."},
- {w:"wringing",team:"wr",base:"wring",end:"ing",rule:"add",s:"The elf was wringing out her wet mittens.",bad:["wrigning","rwinging"],tip:"Silent w before the r!"},
- {w:"wronged",team:"wr",base:"wrong",end:"ed",rule:"add",s:"The reindeer felt wronged when he got no carrot.",bad:["ronged","wrongd"],tip:"Silent w at the start, then just add -ed."},
- {w:"whipped",team:"wh",no:["qu"],base:"whip",end:"ed",rule:"double",s:"Mom whipped the cream for the hot cocoa.",bad:["whiped","wipped"],tip:"wh at the start, and double the p!"},
- {w:"whined",team:"wh",base:"whine",end:"ed",rule:"drop",s:"The puppy whined at the door to see the snow.",bad:["whinned","whineed"],tip:"whine ends in silent e, so drop it and add -ed."},
- {w:"quitting",team:"qu",no:["kn"],base:"quit",end:"ing",rule:"double",s:"The elves are not quitting until every toy is done.",bad:["quiting","kwitting"],tip:"q always brings its buddy u. Double the t!"},
- {w:"quacked",team:"qu",no:["wh","wr"],base:"quack",end:"ed",rule:"add",s:"The toy duck quacked under the Christmas tree.",bad:["quackt","kwacked"],tip:"qu team, ck at the end, then just add -ed."},
- {w:"all",team:null,base:null,end:null,rule:null,s:"We ate all the Christmas cookies.",bad:["al","aul"],tip:"Tricky word! a + double l."}
+ {w:"moon",pre:"m",team:"oo",post:"n",snd:"oo",s:"The moon lit up Santa's sleigh.",bad:["mune","moone"],tip:"Two o's make the /oo/ sound."},
+ {w:"yawn",pre:"y",team:"aw",post:"n",snd:"aw",s:"Rudolph let out a sleepy yawn.",bad:["yaun","yawne"],tip:"aw comes before the n."},
+ {w:"spoiled",pre:"sp",team:"oi",post:"led",snd:"oi",s:"The puppy was spoiled with Christmas treats.",bad:["spoyled","spoild"],tip:"oi in the middle, then add -ed."},
+ {w:"hawk",pre:"h",team:"aw",post:"k",snd:"aw",s:"A hawk flew over the snowy barn.",bad:["hauk","hawck"],tip:"aw comes before the k."},
+ {w:"spool",pre:"sp",team:"oo",post:"l",snd:"oo",s:"The elf grabbed a spool of red ribbon.",bad:["spule","spoal"],tip:"Two o's make the /oo/ sound."},
+ {w:"oil",pre:"",team:"oi",post:"l",snd:"oi",s:"The elves put oil on the squeaky sleigh.",bad:["oyl","oile"],tip:"oi at the start, in front of the l."},
+ {w:"destroy",pre:"destr",team:"oy",post:"",snd:"oi",s:"Don't let the dog destroy the gingerbread house!",bad:["destroi","distroy"],tip:"/oy/ at the END of a word is spelled oy."},
+ {w:"crawl",pre:"cr",team:"aw",post:"l",snd:"aw",s:"The baby will crawl to the Christmas tree.",bad:["craul","crawll"],tip:"aw comes before the l."},
+ {w:"cartoon",pre:"cart",team:"oo",post:"n",snd:"oo",s:"We watched a Christmas cartoon in our PJs.",bad:["cartune","cartoone"],tip:"car + toon. Two o's!"},
+ {w:"causes",pre:"c",team:"au",post:"ses",snd:"aw",s:"Snow always causes a snowball fight.",bad:["cawses","causis"],tip:"au in the middle of the word."},
+ {w:"enjoy",pre:"enj",team:"oy",post:"",snd:"oi",s:"I enjoy hot cocoa with marshmallows.",bad:["enjoi","injoy"],tip:"/oy/ at the END of a word is spelled oy."},
+ {w:"vault",pre:"v",team:"au",post:"lt",snd:"aw",s:"Santa keeps the toy list in a secret vault.",bad:["vawlt","valt"],tip:"au in the middle of the word."},
+ {w:"cowboy",pre:"cowb",team:"oy",post:"",snd:"oi",s:"The cowboy wore a red Santa hat.",bad:["cowboi","kowboy"],tip:"cow + boy. /oy/ at the end is oy."},
+ {w:"coin",pre:"c",team:"oi",post:"n",snd:"oi",s:"I found a chocolate coin in my stocking.",bad:["coyn","coine"],tip:"oi in the middle of the word."},
+ {w:"haunted",pre:"h",team:"au",post:"nted",snd:"aw",s:"The gingerbread house is not haunted!",bad:["hawnted","haunded"],tip:"au in the middle, then add -ed."}
 ];
-const PRESENTS=["🎁","🧸","🚂","🪀","🎨","🛷","🧦","🍭","⛸️","🪅"];
+const DICTATION={w:"My sister enjoys horses.",s:"My sister enjoys horses.",bad:["My sister enjoies horses.","My sistur enjoys horses."],tip:"enjoy + s = enjoys. Keep the oy!"};
+const FAMILY={oo:["oo","ew","ue"],aw:["aw","au"],oi:["oi","oy"]};
+const STOCKINGS=[["oo","🌙 oo"],["aw","🥱 aw / au"],["oi","🪙 oi / oy"]];
+const PRESENTS=["🎁","🧸","🚂","🪀","🎨","🛷","🧦","🍭","⛸️","🪅","🦄","🎀","🍪","⭐","🔔","🐴"];
 let mode="",list=[],i=0,score=0,tries=0,picked=[],locked=false;
 
 function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.1;speechSynthesis.speak(u);}catch(e){}}
@@ -108,13 +115,12 @@ function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor
 function $(id){return document.getElementById(id)}
 function show(id){["menu","game","done"].forEach(x=>$(x).classList.toggle("hidden",x!==id));}
 
-function menu(){show("menu");const n={wrap:"🎁",team:"🦌",ending:"🍪",nice:"📜"};let t=[];for(const m in n){const b=localStorage.getItem("ssw-best-"+m);if(b)t.push(n[m]+" best: "+b);}$("bests").textContent=t.join("   ");}
+function menu(){show("menu");const n={wrap:"🎁",team:"🦌",sort:"🧦",nice:"📜"};let t=[];for(const m in n){const b=localStorage.getItem("ssw-best-"+m);if(b)t.push(n[m]+" best: "+b);}$("bests").textContent=t.join("   ");}
 
 function start(m){
   mode=m;score=0;i=0;
   let pool=WORDS;
-  if(m==="team")pool=WORDS.filter(x=>x.team);
-  if(m==="ending")pool=WORDS.filter(x=>x.base);
+  if(m==="nice")pool=WORDS.concat([DICTATION]);
   list=shuffle(pool);show("game");next(true);
 }
 
@@ -124,7 +130,7 @@ function next(first){
   tries=0;picked=[];locked=false;$("msg").textContent="";$("hint").textContent="";
   $("prog").textContent="🎁 "+(i+1)+" / "+list.length;$("score").textContent=score;
   $("tree").textContent="🎄"+PRESENTS.slice(0,score).join("");
-  ({wrap:drawWrap,team:drawTeam,ending:drawEnding,nice:drawNice})[mode]();
+  ({wrap:drawWrap,team:drawTeam,sort:drawSort,nice:drawNice})[mode]();
   setTimeout(sayWord,300);
 }
 
@@ -164,52 +170,39 @@ function tapTile(k,l){
   if(picked.length===c.w.length){
     const guess=picked.map(p=>p.l).join("");
     if(guess===c.w)correct();
-    else{miss(c.team?"Remember the sneaky letter team "+c.team.toUpperCase()+"! "+c.tip:c.tip);
+    else{miss("Listen for the vowel team "+c.team.toUpperCase()+"! "+c.tip);
       setTimeout(clearWrap,700);}
   }
 }
 function undo(){if(locked||!picked.length)return;const p=picked.pop();$("t"+p.k).classList.remove("used");$("slots").children[picked.length].textContent="";}
 function clearWrap(){picked.forEach(p=>$("t"+p.k).classList.remove("used"));picked=[];[...$("slots").children].forEach(s=>s.textContent="");}
 
-/* MODE 2: pick the letter team */
+/* MODE 2: pick the vowel team */
 function drawTeam(){
   const c=cur();
-  $("prompt").textContent="Which letter team starts this word?";
-  const rest=c.w.slice(2);
-  let h='<div class="word-show">__'+rest+'</div>';
-  shuffle(["kn","wr","wh","qu"].filter(t=>!(c.no||[]).includes(t))).forEach(t=>{h+='<button class="choice" onclick="pickTeam(this,\''+t+'\')">'+t+rest+'</button>';});
+  $("prompt").textContent="Which vowel team fills the gap?";
+  let h='<div class="word-show">'+c.pre+'__'+c.post+'</div>';
+  shuffle(FAMILY[c.snd]).forEach(t=>{h+='<button class="choice" onclick="pickTeam(this,\''+t+'\')">'+c.pre+t+c.post+'</button>';});
   $("area").innerHTML=h;
 }
 function pickTeam(btn,t){
   if(locked)return;const c=cur();
   if(t===c.team){btn.classList.add("right");correct();}
-  else{btn.classList.add("wrong");miss("Say it slowly. Which team has a sneaky silent letter that makes that sound? "+c.tip);}
+  else{btn.classList.add("wrong");miss("Check the Elf's Secret Code! "+c.tip);}
 }
 
-/* MODE 3: build the ending */
-function build(base,end,rule){
-  if(rule==="double")return base+base.slice(-1)+end;
-  if(rule==="drop")return base.slice(0,-1)+end;
-  return base+end;
-}
-function drawEnding(){
+/* MODE 3: sort into the sound stocking */
+function drawSort(){
   const c=cur();
-  $("prompt").innerHTML='Build the cookie! <b style="color:#ffe08a">'+c.base+'</b> + <b style="color:#ffe08a">'+c.end+'</b> = ?';
-  const opts={};
-  ["double","drop","add"].forEach(r=>{const w=build(c.base,c.end,r);if(!opts[w])opts[w]=r;});
-  if(c.base.slice(-1)!=="e"){const w=c.base+"e"+c.end;opts[w]="x";}
-  const words=shuffle(Object.keys(opts)).slice(0,3);
-  if(!words.includes(c.w)){words[0]=c.w;}
-  let h='<div class="word-show">🍪 '+c.base+' + '+c.end+'</div>';
-  shuffle(words).forEach(w=>{h+='<button class="choice" onclick="pickEnd(this,\''+w+'\')">'+w+'</button>';});
+  $("prompt").textContent="Hang it in the right stocking! Which sound do you hear?";
+  let h='<div class="word-show">'+c.w+'</div>';
+  STOCKINGS.forEach(st=>{h+='<button class="choice" onclick="pickSort(this,\''+st[0]+'\')">🧦 '+st[1]+'</button>';});
   $("area").innerHTML=h;
 }
-function pickEnd(btn,w){
+function pickSort(btn,snd){
   if(locked)return;const c=cur();
-  if(w===c.w){btn.classList.add("right");correct();}
-  else{btn.classList.add("wrong");
-    const hint=c.rule==="double"?"Short vowel + one consonant at the end? Double it!":c.rule==="drop"?"Ends in silent e? Drop the e, then add the ending.":"Two consonants at the end already? Just add the ending!";
-    miss(hint);}
+  if(snd===c.snd){btn.classList.add("right");correct();}
+  else{btn.classList.add("wrong");miss("Say it slowly and listen to the middle. The team is "+c.team.toUpperCase()+".");}
 }
 
 /* MODE 4: naughty or nice (spot the right spelling) */
